@@ -1,5 +1,8 @@
 const prisma = require("../prismaClient");
 const { DEFAULT_USER_ID } = require("../config/constants");
+const { sendOrderConfirmationEmail } = require("../services/emailService");
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const SHIPPING_FIELDS = [
   "shippingName",
@@ -25,6 +28,15 @@ async function placeOrder(req, res, next) {
       if (!value || typeof value !== "string" || !value.trim()) {
         return res.status(400).json({ error: `${field} is required` });
       }
+    }
+
+    const email =
+      typeof req.body.email === "string" ? req.body.email.trim() : "";
+    if (!email) {
+      return res.status(400).json({ error: "email is required" });
+    }
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ error: "email must be a valid email address" });
     }
 
     const cartItems = await prisma.cartItem.findMany({
@@ -58,6 +70,7 @@ async function placeOrder(req, res, next) {
         data: {
           userId: DEFAULT_USER_ID,
           totalAmount,
+          email,
           status: "PLACED",
           shippingName: req.body.shippingName.trim(),
           shippingPhone: req.body.shippingPhone.trim(),
@@ -90,6 +103,9 @@ async function placeOrder(req, res, next) {
     });
 
     res.status(201).json(order);
+    sendOrderConfirmationEmail(order).catch((err) => {
+      console.error("Order confirmation email failed:", err.message);
+    });
   } catch (err) {
     next(err);
   }

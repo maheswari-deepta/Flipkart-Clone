@@ -1,19 +1,42 @@
 const prisma = require("../prismaClient");
 
-/** Returns products filtered by optional search and category query params. */
+/** Returns products filtered by optional search, category, and limit query params. */
 async function getProducts(req, res, next) {
   try {
-    const { search, category } = req.query;
-
-    const where = {};
+    const { search, category, limit } = req.query;
+    const and = [];
 
     if (search) {
-      where.name = { contains: String(search), mode: "insensitive" };
+      const term = String(search);
+      and.push({
+        OR: [
+          { name: { contains: term, mode: "insensitive" } },
+          { category: { name: { contains: term, mode: "insensitive" } } },
+        ],
+      });
     }
 
     if (category) {
-      where.category = { name: { equals: String(category), mode: "insensitive" } };
+      const categories = String(category)
+        .split(",")
+        .map((c) => c.trim())
+        .filter(Boolean);
+
+      if (categories.length === 1) {
+        and.push({
+          category: { name: { equals: categories[0], mode: "insensitive" } },
+        });
+      } else if (categories.length > 1) {
+        and.push({
+          OR: categories.map((name) => ({
+            category: { name: { equals: name, mode: "insensitive" } },
+          })),
+        });
+      }
     }
+
+    const where = and.length > 0 ? { AND: and } : {};
+    const take = limit ? Math.min(Math.max(Number(limit), 1), 50) : undefined;
 
     const products = await prisma.product.findMany({
       where,
@@ -22,6 +45,7 @@ async function getProducts(req, res, next) {
         category: true,
       },
       orderBy: { id: "asc" },
+      ...(take ? { take } : {}),
     });
 
     res.json(products);

@@ -7,6 +7,10 @@ const productInclude = {
   },
 };
 
+function normalizeVariant(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 /** Returns the default user's cart with computed subtotal, totalAmount, and totalItems. */
 async function getCart(req, res, next) {
   try {
@@ -37,6 +41,8 @@ async function addToCart(req, res, next) {
   try {
     const productId = Number(req.body.productId);
     const quantity = Number(req.body.quantity);
+    const size = normalizeVariant(req.body.size);
+    const color = normalizeVariant(req.body.color);
 
     if (!Number.isInteger(productId) || productId <= 0) {
       return res.status(400).json({ error: "productId must be a positive integer" });
@@ -50,9 +56,12 @@ async function addToCart(req, res, next) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    const existing = await prisma.cartItem.findUnique({
+    const existing = await prisma.cartItem.findFirst({
       where: {
-        userId_productId: { userId: DEFAULT_USER_ID, productId },
+        userId: DEFAULT_USER_ID,
+        productId,
+        size,
+        color,
       },
     });
 
@@ -61,14 +70,25 @@ async function addToCart(req, res, next) {
       return res.status(400).json({ error: "Insufficient stock" });
     }
 
-    const cartItem = await prisma.cartItem.upsert({
-      where: {
-        userId_productId: { userId: DEFAULT_USER_ID, productId },
-      },
-      create: { userId: DEFAULT_USER_ID, productId, quantity },
-      update: { quantity: { increment: quantity } },
-      include: productInclude,
-    });
+    let cartItem;
+    if (existing) {
+      cartItem = await prisma.cartItem.update({
+        where: { id: existing.id },
+        data: { quantity: { increment: quantity } },
+        include: productInclude,
+      });
+    } else {
+      cartItem = await prisma.cartItem.create({
+        data: {
+          userId: DEFAULT_USER_ID,
+          productId,
+          quantity,
+          size,
+          color,
+        },
+        include: productInclude,
+      });
+    }
 
     res.json(cartItem);
   } catch (err) {

@@ -94,6 +94,12 @@ async function main() {
       rating: 4.0,
       brand: "UrbanFit",
       category: "Fashion",
+      sizes: ["S", "M", "L", "XL"],
+      colors: [
+        { name: "White", token: "background" },
+        { name: "Navy", token: "primary" },
+        { name: "Black", token: "foreground" },
+      ],
       images: [
         "https://picsum.photos/seed/shirt1/600/600",
         "https://picsum.photos/seed/shirt2/600/600",
@@ -108,6 +114,11 @@ async function main() {
       rating: 4.5,
       brand: "StrideX",
       category: "Fashion",
+      sizes: ["6", "7", "8", "9"],
+      colors: [
+        { name: "Pink", token: "accent" },
+        { name: "Grey", token: "muted" },
+      ],
       images: [
         "https://picsum.photos/seed/shoes1/600/600",
         "https://picsum.photos/seed/shoes2/600/600",
@@ -122,6 +133,11 @@ async function main() {
       rating: 4.2,
       brand: "UrbanFit",
       category: "Fashion",
+      sizes: ["S", "M", "L", "XL"],
+      colors: [
+        { name: "Blue", token: "primary" },
+        { name: "Black", token: "foreground" },
+      ],
       images: [
         "https://picsum.photos/seed/jacket1/600/600",
         "https://picsum.photos/seed/jacket2/600/600",
@@ -136,6 +152,11 @@ async function main() {
       rating: 4.3,
       brand: "ClassicHide",
       category: "Fashion",
+      sizes: [],
+      colors: [
+        { name: "Brown", token: "accent" },
+        { name: "Black", token: "foreground" },
+      ],
       images: [
         "https://picsum.photos/seed/wallet1/600/600",
         "https://picsum.photos/seed/wallet2/600/600",
@@ -251,6 +272,8 @@ async function main() {
         stock: p.stock,
         rating: p.rating,
         brand: p.brand,
+        sizes: p.sizes ?? [],
+        colors: p.colors ?? [],
         categoryId: categories[p.category].id,
         images: {
           create: p.images.map((url) => ({ url })),
