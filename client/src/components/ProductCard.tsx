@@ -17,6 +17,8 @@ export function ProductCard({ product }: ProductCardProps) {
     product.sizes.length > 0
       ? `Size ${product.sizes.join(", ")}`
       : null
+  const reviewCount =
+    product._count?.reviews ?? product.reviews?.length ?? 0
 
   return (
     <article className="relative flex h-full flex-col overflow-hidden rounded-sm border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
@@ -61,8 +63,8 @@ export function ProductCard({ product }: ProductCardProps) {
           <Star className="size-3 fill-primary text-primary" />
           <span>{product.rating.toFixed(1)}</span>
           <span>
-            ({product._count?.reviews ?? 0} review
-            {(product._count?.reviews ?? 0) === 1 ? "" : "s"})
+            ({reviewCount} review
+            {reviewCount === 1 ? "" : "s"})
           </span>
         </div>
 

@@ -1,17 +1,13 @@
 const prisma = require("../prismaClient");
 const { DEFAULT_USER_ID } = require("../config/constants");
-
-const productInclude = {
-  images: true,
-  category: true,
-};
+const { productListInclude } = require("../config/productIncludes");
 
 /** Returns wishlisted products for the default user. */
 async function getWishlist(req, res, next) {
   try {
     const items = await prisma.wishlistItem.findMany({
       where: { userId: DEFAULT_USER_ID },
-      include: { product: { include: productInclude } },
+      include: { product: { include: productListInclude } },
       orderBy: { createdAt: "desc" },
     });
 
