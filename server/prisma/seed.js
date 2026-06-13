@@ -51,7 +51,7 @@ async function main() {
       shippingInfo: 'Ships in 3-5 business days',
       availability: 'In Stock',
       returnPolicy: 'No return policy',
-      minOrderQty: 48,
+      minOrderQty: 1,
       tags: [
         'beauty',
         'mascara'
@@ -100,7 +100,7 @@ async function main() {
       shippingInfo: 'Ships in 2 weeks',
       availability: 'In Stock',
       returnPolicy: '7 days return policy',
-      minOrderQty: 20,
+      minOrderQty: 2,
       tags: [
         'beauty',
         'eyeshadow'
@@ -149,7 +149,7 @@ async function main() {
       shippingInfo: 'Ships in 1-2 business days',
       availability: 'In Stock',
       returnPolicy: 'No return policy',
-      minOrderQty: 22,
+      minOrderQty: 1,
       tags: [
         'beauty',
         'face powder'
@@ -198,7 +198,7 @@ async function main() {
       shippingInfo: 'Ships in 1 week',
       availability: 'In Stock',
       returnPolicy: '7 days return policy',
-      minOrderQty: 40,
+      minOrderQty: 2,
       tags: [
         'beauty',
         'lipstick'
@@ -247,7 +247,7 @@ async function main() {
       shippingInfo: 'Ships overnight',
       availability: 'In Stock',
       returnPolicy: 'No return policy',
-      minOrderQty: 22,
+      minOrderQty: 1,
       tags: [
         'beauty',
         'nail polish'
@@ -296,7 +296,7 @@ async function main() {
       shippingInfo: 'Ships overnight',
       availability: 'In Stock',
       returnPolicy: '90 days return policy',
-      minOrderQty: 9,
+      minOrderQty: 2,
       tags: [
         'fragrances',
         'perfumes'
@@ -398,7 +398,7 @@ async function main() {
       shippingInfo: 'Ships in 2 weeks',
       availability: 'In Stock',
       returnPolicy: '7 days return policy',
-      minOrderQty: 10,
+      minOrderQty: 2,
       tags: [
         'fragrances',
         'perfumes'
@@ -449,7 +449,7 @@ async function main() {
       shippingInfo: 'Ships in 1 month',
       availability: 'Low Stock',
       returnPolicy: '7 days return policy',
-      minOrderQty: 2,
+      minOrderQty: 1,
       tags: [
         'fragrances',
         'perfumes'
@@ -602,7 +602,7 @@ async function main() {
       shippingInfo: 'Ships in 1 week',
       availability: 'In Stock',
       returnPolicy: '7 days return policy',
-      minOrderQty: 1,
+      minOrderQty: 2,
       tags: [
         'furniture',
         'sofas'
@@ -653,7 +653,7 @@ async function main() {
       shippingInfo: 'Ships overnight',
       availability: 'In Stock',
       returnPolicy: '7 days return policy',
-      minOrderQty: 3,
+      minOrderQty: 1,
       tags: [
         'furniture',
         'bedside tables'
@@ -704,7 +704,7 @@ async function main() {
       shippingInfo: 'Ships overnight',
       availability: 'In Stock',
       returnPolicy: '60 days return policy',
-      minOrderQty: 5,
+      minOrderQty: 2,
       tags: [
         'furniture',
         'office chairs'
@@ -755,7 +755,7 @@ async function main() {
       shippingInfo: 'Ships in 3-5 business days',
       availability: 'Low Stock',
       returnPolicy: '60 days return policy',
-      minOrderQty: 2,
+      minOrderQty: 1,
       tags: [
         'furniture',
         'bathroom'
@@ -806,7 +806,7 @@ async function main() {
       shippingInfo: 'Ships in 2 weeks',
       availability: 'In Stock',
       returnPolicy: '90 days return policy',
-      minOrderQty: 7,
+      minOrderQty: 2,
       tags: [
         'fruits'
       ],
@@ -854,7 +854,7 @@ async function main() {
       shippingInfo: 'Ships overnight',
       availability: 'In Stock',
       returnPolicy: '60 days return policy',
-      minOrderQty: 43,
+      minOrderQty: 1,
       tags: [
         'meat'
       ],
@@ -902,7 +902,7 @@ async function main() {
       shippingInfo: 'Ships overnight',
       availability: 'In Stock',
       returnPolicy: 'No return policy',
-      minOrderQty: 18,
+      minOrderQty: 2,
       tags: [
         'pet supplies',
         'cat food'
@@ -951,7 +951,7 @@ async function main() {
       shippingInfo: 'Ships in 1 month',
       availability: 'In Stock',
       returnPolicy: '7 days return policy',
-      minOrderQty: 22,
+      minOrderQty: 1,
       tags: [
         'meat'
       ],
@@ -1000,7 +1000,7 @@ async function main() {
       shippingInfo: 'Ships in 1-2 business days',
       availability: 'In Stock',
       returnPolicy: '30 days return policy',
-      minOrderQty: 46,
+      minOrderQty: 2,
       tags: [
         'cooking essentials'
       ],
@@ -1048,7 +1048,7 @@ async function main() {
       shippingInfo: 'Ships in 1-2 business days',
       availability: 'In Stock',
       returnPolicy: '7 days return policy',
-      minOrderQty: 2,
+      minOrderQty: 1,
       tags: [
         'vegetables'
       ],
@@ -1096,7 +1096,7 @@ async function main() {
       shippingInfo: 'Ships in 1-2 business days',
       availability: 'In Stock',
       returnPolicy: '60 days return policy',
-      minOrderQty: 43,
+      minOrderQty: 2,
       tags: [
         'pet supplies',
         'dog food'
@@ -1145,7 +1145,7 @@ async function main() {
       shippingInfo: 'Ships in 1 week',
       availability: 'In Stock',
       returnPolicy: 'No return policy',
-      minOrderQty: 32,
+      minOrderQty: 1,
       tags: [
         'dairy'
       ],
@@ -1193,7 +1193,7 @@ async function main() {
       shippingInfo: 'Ships in 3-5 business days',
       availability: 'In Stock',
       returnPolicy: '60 days return policy',
-      minOrderQty: 50,
+      minOrderQty: 2,
       tags: [
         'seafood'
       ],
@@ -1241,7 +1241,7 @@ async function main() {
       shippingInfo: 'Ships in 1 week',
       availability: 'In Stock',
       returnPolicy: '30 days return policy',
-      minOrderQty: 12,
+      minOrderQty: 1,
       tags: [
         'vegetables'
       ],
@@ -1289,7 +1289,7 @@ async function main() {
       shippingInfo: 'Ships in 1 week',
       availability: 'Low Stock',
       returnPolicy: '30 days return policy',
-      minOrderQty: 39,
+      minOrderQty: 2,
       tags: [
         'vegetables'
       ],
@@ -1337,7 +1337,7 @@ async function main() {
       shippingInfo: 'Ships in 1-2 business days',
       availability: 'In Stock',
       returnPolicy: '90 days return policy',
-      minOrderQty: 47,
+      minOrderQty: 1,
       tags: [
         'condiments'
       ],
@@ -1385,7 +1385,7 @@ async function main() {
       shippingInfo: 'Ships in 2 weeks',
       availability: 'In Stock',
       returnPolicy: 'No return policy',
-      minOrderQty: 42,
+      minOrderQty: 2,
       tags: [
         'desserts'
       ],
@@ -1436,7 +1436,7 @@ async function main() {
       shippingInfo: 'Ships in 1 week',
       availability: 'In Stock',
       returnPolicy: 'No return policy',
-      minOrderQty: 25,
+      minOrderQty: 1,
       tags: [
         'beverages'
       ],
@@ -1484,7 +1484,7 @@ async function main() {
       shippingInfo: 'Ships overnight',
       availability: 'In Stock',
       returnPolicy: '7 days return policy',
-      minOrderQty: 30,
+      minOrderQty: 2,
       tags: [
         'fruits'
       ],
