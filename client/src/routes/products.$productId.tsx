@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import axios from "axios"
 import { useEffect, useMemo, useState } from "react"
-import { Minus, Plus, Star } from "lucide-react"
+import { Minus, Plus, Star, Loader2 } from "lucide-react"
 
 import { Carousel } from "@/components/Carousel"
 import { ProductReviews } from "@/components/ProductReviews"
@@ -28,6 +28,7 @@ function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState("")
   const [quantity, setQuantity] = useState(1)
   const [sizeDialogOpen, setSizeDialogOpen] = useState(false)
+  const [addingToCart, setAddingToCart] = useState(false)
 
   const id = Number(productId)
   const invalidId = Number.isNaN(id)
@@ -129,13 +130,19 @@ function ProductDetailPage() {
   }
 
   async function performAddToCart() {
-    await addToCart(product!.id, quantity, {
-      size: selectedSize,
-      color: selectedColor,
-    })
+    setAddingToCart(true)
+    try {
+      await addToCart(product!.id, quantity, {
+        size: selectedSize,
+        color: selectedColor,
+      })
+    } finally {
+      setAddingToCart(false)
+    }
   }
 
   async function handleAddToCart() {
+    if (addingToCart) return
     if (needsVariantSelection()) {
       setSizeDialogOpen(true)
       return
@@ -144,6 +151,7 @@ function ProductDetailPage() {
   }
 
   async function handleBuyNow() {
+    if (addingToCart) return
     if (needsVariantSelection()) {
       setSizeDialogOpen(true)
       return
@@ -157,8 +165,8 @@ function ProductDetailPage() {
   }
 
   async function handleDialogConfirm() {
-    setSizeDialogOpen(false)
     await performAddToCart()
+    setSizeDialogOpen(false)
   }
 
   return (
@@ -321,19 +329,33 @@ function ProductDetailPage() {
               <Button
                 variant="secondary"
                 size="lg"
-                disabled={!inStock}
+                disabled={!inStock || addingToCart}
                 onClick={handleAddToCart}
               >
-                ADD TO CART
+                {addingToCart ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  "ADD TO CART"
+                )}
               </Button>
             )}
             <Button
               size="lg"
-              disabled={!inStock}
+              disabled={!inStock || addingToCart}
               className="bg-accent text-accent-foreground hover:bg-accent/80"
               onClick={handleBuyNow}
             >
-              BUY NOW
+              {addingToCart ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Please wait...
+                </>
+              ) : (
+                "BUY NOW"
+              )}
             </Button>
           </div>
         </div>
@@ -360,6 +382,7 @@ function ProductDetailPage() {
         onSizeChange={setSelectedSize}
         onColorChange={setSelectedColor}
         onConfirm={handleDialogConfirm}
+        confirming={addingToCart}
       />
     </div>
   )

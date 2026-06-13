@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { Link } from "@tanstack/react-router"
-import { Minus, Plus, Trash2 } from "lucide-react"
+import { Loader2, Minus, Plus, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/context/CartContext"
 import type { CartItemDTO } from "@/lib/types"
-import { formatPrice } from "@/lib/utils"
+import { cn, formatPrice } from "@/lib/utils"
 
 interface CartItemRowProps {
   item: CartItemDTO
@@ -14,12 +14,24 @@ interface CartItemRowProps {
 export function CartItemRow({ item }: CartItemRowProps) {
   const { updateQuantity, removeItem } = useCart()
   const [removing, setRemoving] = useState(false)
+  const [updating, setUpdating] = useState(false)
   const { product, quantity } = item
   const imageUrl = product.images[0]?.url
   const minQty = product.minOrderQty ?? 1
   const atMaxStock = quantity >= product.stock
   const atMinQty = quantity <= minQty
   const lineTotal = product.price * quantity
+
+  async function handleQuantityChange(newQty: number) {
+    if (updating || removing) return
+
+    setUpdating(true)
+    try {
+      await updateQuantity(item.id, newQty)
+    } finally {
+      setUpdating(false)
+    }
+  }
 
   async function handleRemove() {
     if (removing) return
@@ -33,7 +45,12 @@ export function CartItemRow({ item }: CartItemRowProps) {
   }
 
   return (
-    <div className="flex gap-4 rounded-lg border border-border bg-card p-4">
+    <div
+      className={cn(
+        "flex gap-4 rounded-lg border border-border bg-card p-4 transition-opacity",
+        (updating || removing) && "opacity-60"
+      )}
+    >
       <div className="flex size-24 shrink-0 items-center justify-center rounded bg-muted p-2">
         {imageUrl ? (
           <img
@@ -70,8 +87,8 @@ export function CartItemRow({ item }: CartItemRowProps) {
             <Button
               variant="outline"
               size="icon-sm"
-              onClick={() => updateQuantity(item.id, quantity - 1)}
-              disabled={atMinQty}
+              onClick={() => handleQuantityChange(quantity - 1)}
+              disabled={atMinQty || updating || removing}
               aria-label="Decrease quantity"
             >
               <Minus className="size-3.5" />
@@ -82,8 +99,8 @@ export function CartItemRow({ item }: CartItemRowProps) {
             <Button
               variant="outline"
               size="icon-sm"
-              onClick={() => updateQuantity(item.id, quantity + 1)}
-              disabled={atMaxStock}
+              onClick={() => handleQuantityChange(quantity + 1)}
+              disabled={atMaxStock || updating || removing}
               aria-label="Increase quantity"
             >
               <Plus className="size-3.5" />
@@ -112,12 +129,16 @@ export function CartItemRow({ item }: CartItemRowProps) {
           variant="ghost"
           size="icon-sm"
           onClick={handleRemove}
-          disabled={removing}
+          disabled={removing || updating}
           aria-label="Remove item"
           aria-busy={removing}
           className="text-muted-foreground hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
         >
-          <Trash2 className="size-4" />
+          {removing ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Trash2 className="size-4" />
+          )}
         </Button>
       </div>
     </div>

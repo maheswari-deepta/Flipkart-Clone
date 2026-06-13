@@ -27,7 +27,7 @@ interface WishlistContextValue {
   wishlistCount: number
   loading: boolean
   error: string | null
-  refreshWishlist: () => Promise<void>
+  refreshWishlist: (options?: { showLoading?: boolean }) => Promise<void>
   isInWishlist: (productId: number) => boolean
   removeFromWishlist: (
     productId: number,
@@ -50,7 +50,10 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const refreshWishlist = useCallback(async () => {
+  const refreshWishlist = useCallback(async (options?: { showLoading?: boolean }) => {
+    if (options?.showLoading) {
+      setLoading(true)
+    }
     setError(null)
     try {
       const data = await getWishlist()
@@ -58,12 +61,14 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {
-      setLoading(false)
+      if (options?.showLoading) {
+        setLoading(false)
+      }
     }
   }, [])
 
   useEffect(() => {
-    refreshWishlist()
+    refreshWishlist({ showLoading: true })
   }, [refreshWishlist])
 
   const isInWishlist = useCallback(

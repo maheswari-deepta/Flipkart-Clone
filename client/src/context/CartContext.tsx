@@ -19,12 +19,17 @@ import {
 } from "@/lib/api"
 import type { AddToCartOptions, ApiError, CartResponse } from "@/lib/types"
 
+interface RefreshCartOptions {
+  showLoading?: boolean
+}
+
 interface CartContextValue {
   cart: CartResponse | null
   cartCount: number
   loading: boolean
+  mutating: boolean
   error: string | null
-  refreshCart: () => Promise<void>
+  refreshCart: (options?: RefreshCartOptions) => Promise<void>
   addToCart: (
     productId: number,
     quantity: number,
@@ -47,10 +52,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const { isInWishlist, removeFromWishlist } = useWishlist()
   const [cart, setCart] = useState<CartResponse | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mutating, setMutating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const refreshCart = useCallback(async () => {
-    setLoading(true)
+  const refreshCart = useCallback(async (options?: RefreshCartOptions) => {
+    if (options?.showLoading) {
+      setLoading(true)
+    }
     setError(null)
     try {
       const data = await getCart()
@@ -58,12 +66,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {
-      setLoading(false)
+      if (options?.showLoading) {
+        setLoading(false)
+      }
     }
   }, [])
 
   useEffect(() => {
-    refreshCart()
+    refreshCart({ showLoading: true })
   }, [refreshCart])
 
   const addToCart = useCallback(
@@ -72,7 +82,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       quantity: number,
       options?: AddToCartOptions
     ) => {
-      setLoading(true)
+      setMutating(true)
       setError(null)
       try {
         await addToCartApi(productId, quantity, options)
@@ -85,7 +95,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const message = getErrorMessage(err)
         setError(message)
         toast.error(message)
-        setLoading(false)
+      } finally {
+        setMutating(false)
       }
     },
     [refreshCart, isInWishlist, removeFromWishlist]
@@ -93,7 +104,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeItem = useCallback(
     async (itemId: number) => {
-      setLoading(true)
+      setMutating(true)
       setError(null)
       try {
         await removeFromCartApi(itemId)
@@ -103,7 +114,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const message = getErrorMessage(err)
         setError(message)
         toast.error(message)
-        setLoading(false)
+      } finally {
+        setMutating(false)
       }
     },
     [refreshCart]
@@ -116,7 +128,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      setLoading(true)
+      setMutating(true)
       setError(null)
       try {
         await updateCartItem(itemId, quantity)
@@ -125,7 +137,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const message = getErrorMessage(err)
         setError(message)
         toast.error(message)
-        setLoading(false)
+      } finally {
+        setMutating(false)
       }
     },
     [refreshCart, removeItem]
@@ -138,6 +151,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       cart,
       cartCount,
       loading,
+      mutating,
       error,
       refreshCart,
       addToCart,
@@ -148,6 +162,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       cart,
       cartCount,
       loading,
+      mutating,
       error,
       refreshCart,
       addToCart,

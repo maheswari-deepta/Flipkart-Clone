@@ -3,6 +3,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router"
 import {
   Heart,
   LayoutGrid,
+  Loader2,
   Package,
   Plus,
   Search,
@@ -50,12 +51,16 @@ export function Navbar() {
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const [activeSuggestion, setActiveSuggestion] = useState(-1)
   const [allCategories, setAllCategories] = useState<Category[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+  const [searchLoading, setSearchLoading] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const skipSearchSyncRef = useRef(false)
   const debouncedQuery = useDebounce(query, 400)
 
   useEffect(() => {
-    getCategories().then(setAllCategories)
+    getCategories()
+      .then(setAllCategories)
+      .finally(() => setCategoriesLoading(false))
   }, [])
 
   useEffect(() => {
@@ -91,11 +96,13 @@ export function Navbar() {
     const trimmed = query.trim()
     if (!trimmed) {
       setSuggestions([])
+      setSearchLoading(false)
       return
     }
 
     let cancelled = false
     const term = trimmed.toLowerCase()
+    setSearchLoading(true)
 
     const matchingCategories: SuggestionItem[] = allCategories
       .filter((c) => c.name.toLowerCase().includes(term))
@@ -121,6 +128,9 @@ export function Navbar() {
       })
       .catch(() => {
         if (!cancelled) setSuggestions(matchingCategories)
+      })
+      .finally(() => {
+        if (!cancelled) setSearchLoading(false)
       })
 
     return () => {
@@ -261,10 +271,23 @@ export function Navbar() {
                 className="absolute top-1/2 right-1 flex size-8 -translate-y-1/2 items-center justify-center rounded-sm bg-primary text-primary-foreground"
                 aria-label="Search"
               >
-                <Search className="size-4" />
+                {searchLoading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Search className="size-4" />
+                )}
               </button>
 
-              {suggestionsOpen && suggestions.length > 0 && (
+              {suggestionsOpen && query.trim() && searchLoading && (
+                <ul className="absolute top-full right-0 left-0 z-50 mt-1 rounded-sm border border-border bg-popover shadow-lg">
+                  <li className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground">
+                    <Loader2 className="size-4 animate-spin" />
+                    Searching...
+                  </li>
+                </ul>
+              )}
+
+              {suggestionsOpen && suggestions.length > 0 && !searchLoading && (
                 <ul className="absolute top-full right-0 left-0 z-50 mt-1 max-h-72 overflow-y-auto rounded-sm border border-border bg-popover shadow-lg">
                   {suggestions.map((item, index) => (
                     <li key={`${item.type}-${item.id}`}>
@@ -350,7 +373,17 @@ export function Navbar() {
               <span className="whitespace-nowrap">For You</span>
             </button>
 
-            {allCategories.map((cat) => {
+            {categoriesLoading
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex shrink-0 flex-col items-center gap-1 px-3 py-2"
+                  >
+                    <div className="size-5 animate-pulse rounded bg-muted" />
+                    <div className="h-3 w-12 animate-pulse rounded bg-muted" />
+                  </div>
+                ))
+              : allCategories.map((cat) => {
               const Icon = getCategoryIcon(cat.name)
               const isActive = selectedCategories.includes(cat.name)
 

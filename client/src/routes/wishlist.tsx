@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
+import { useState } from "react"
+import { Loader2 } from "lucide-react"
 
 import { ProductCard } from "@/components/ProductCard"
+import { Button } from "@/components/ui/button"
 import { useWishlist } from "@/context/WishlistContext"
 
 export const Route = createFileRoute("/wishlist")({
@@ -8,7 +11,17 @@ export const Route = createFileRoute("/wishlist")({
 })
 
 function WishlistPage() {
-  const { wishlist, loading, error } = useWishlist()
+  const { wishlist, loading, error, refreshWishlist } = useWishlist()
+  const [refreshing, setRefreshing] = useState(false)
+
+  async function handleRetry() {
+    setRefreshing(true)
+    try {
+      await refreshWishlist({ showLoading: true })
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -39,6 +52,21 @@ function WishlistPage() {
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 text-center">
         <p className="text-destructive">{error}</p>
+        <Button
+          variant="outline"
+          className="mt-4"
+          disabled={refreshing}
+          onClick={handleRetry}
+        >
+          {refreshing ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Retrying...
+            </>
+          ) : (
+            "Retry"
+          )}
+        </Button>
       </div>
     )
   }

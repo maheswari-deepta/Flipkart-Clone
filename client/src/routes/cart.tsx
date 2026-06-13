@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
+import { useState } from "react"
+import { Loader2 } from "lucide-react"
 
 import { CartItemRow } from "@/components/CartItemRow"
 import { CartSummary } from "@/components/CartSummary"
@@ -11,6 +13,16 @@ export const Route = createFileRoute("/cart")({
 
 function CartPage() {
   const { cart, loading, error, refreshCart } = useCart()
+  const [refreshing, setRefreshing] = useState(false)
+
+  async function handleRetry() {
+    setRefreshing(true)
+    try {
+      await refreshCart({ showLoading: true })
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   if (loading && !cart) {
     return (
@@ -41,8 +53,20 @@ function CartPage() {
     return (
       <div className="mx-auto flex min-h-64 max-w-7xl flex-col items-center justify-center px-4 py-16 text-center">
         <p className="text-destructive">{error}</p>
-        <Button variant="outline" className="mt-4" onClick={refreshCart}>
-          Retry
+        <Button
+          variant="outline"
+          className="mt-4"
+          disabled={refreshing}
+          onClick={handleRetry}
+        >
+          {refreshing ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Retrying...
+            </>
+          ) : (
+            "Retry"
+          )}
         </Button>
       </div>
     )
@@ -71,8 +95,15 @@ function CartPage() {
       {error && (
         <div className="mb-4 flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           <span>{error}</span>
-          <Button variant="ghost" size="sm" onClick={refreshCart}>
-            Retry
+          <Button variant="ghost" size="sm" disabled={refreshing} onClick={handleRetry}>
+            {refreshing ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Retrying...
+              </>
+            ) : (
+              "Retry"
+            )}
           </Button>
         </div>
       )}

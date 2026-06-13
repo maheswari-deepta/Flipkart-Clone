@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog"
 import type { Product, ProductColor } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { Loader2 } from "lucide-react"
 
 interface SizeSelectionDialogProps {
   open: boolean
@@ -19,6 +20,7 @@ interface SizeSelectionDialogProps {
   onSizeChange: (size: string) => void
   onColorChange: (color: string) => void
   onConfirm: () => void
+  confirming?: boolean
 }
 
 export function SizeSelectionDialog({
@@ -30,6 +32,7 @@ export function SizeSelectionDialog({
   onSizeChange,
   onColorChange,
   onConfirm,
+  confirming = false,
 }: SizeSelectionDialogProps) {
   const imageUrl = product.images[0]?.url
   const needsSize = product.sizes.length > 0
@@ -126,10 +129,17 @@ export function SizeSelectionDialog({
         <DialogFooter>
           <Button
             className="w-full bg-accent text-accent-foreground hover:bg-accent/80"
-            disabled={!canConfirm}
+            disabled={!canConfirm || confirming}
             onClick={onConfirm}
           >
-            Add to Cart
+            {confirming ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Adding...
+              </>
+            ) : (
+              "Add to Cart"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
