@@ -23,23 +23,46 @@ model Category {
 }
 
 model Product {
-  id          Int            @id @default(autoincrement())
-  name        String
-  description String
-  price       Float
-  mrp         Float
-  stock       Int
-  rating      Float          @default(4.0)
-  brand       String?
-  sizes       String[]       @default([])
-  colors      Json           @default("[]")
-  categoryId  Int
-  category    Category       @relation(fields: [categoryId], references: [id])
-  images      ProductImage[]
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
-  wishlistItems WishlistItem[]
-  createdAt     DateTime       @default(now())
+  id             Int            @id @default(autoincrement())
+  name           String
+  description    String
+  price          Float
+  mrp            Float
+  stock          Int
+  rating         Float          @default(4.0)
+  brand          String?
+  sku            String         @unique
+  weight         Float
+  width          Float
+  height         Float
+  depth          Float
+  warranty       String
+  shippingInfo   String
+  availability   String
+  returnPolicy   String
+  minOrderQty    Int
+  tags           String[]       @default([])
+  sizes          String[]       @default([])
+  colors         Json           @default("[]")
+  categoryId     Int
+  category       Category       @relation(fields: [categoryId], references: [id])
+  images         ProductImage[]
+  reviews        Review[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  wishlistItems  WishlistItem[]
+  createdAt      DateTime       @default(now())
+}
+
+model Review {
+  id            Int      @id @default(autoincrement())
+  rating        Int
+  comment       String
+  reviewerName  String
+  reviewerEmail String
+  productId     Int
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
 }
 
 model ProductImage {
