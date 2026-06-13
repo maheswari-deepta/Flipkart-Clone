@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Link } from "@tanstack/react-router"
 import { Minus, Plus, Trash2 } from "lucide-react"
 
@@ -12,10 +13,22 @@ interface CartItemRowProps {
 
 export function CartItemRow({ item }: CartItemRowProps) {
   const { updateQuantity, removeItem } = useCart()
+  const [removing, setRemoving] = useState(false)
   const { product, quantity } = item
   const imageUrl = product.images[0]?.url
   const atMaxStock = quantity >= product.stock
   const lineTotal = product.price * quantity
+
+  async function handleRemove() {
+    if (removing) return
+
+    setRemoving(true)
+    try {
+      await removeItem(item.id)
+    } finally {
+      setRemoving(false)
+    }
+  }
 
   return (
     <div className="flex gap-4 rounded-lg border border-border bg-card p-4">
@@ -89,9 +102,11 @@ export function CartItemRow({ item }: CartItemRowProps) {
         <Button
           variant="ghost"
           size="icon-sm"
-          onClick={() => removeItem(item.id)}
+          onClick={handleRemove}
+          disabled={removing}
           aria-label="Remove item"
-          className="text-muted-foreground hover:text-destructive"
+          aria-busy={removing}
+          className="text-muted-foreground hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
         >
           <Trash2 className="size-4" />
         </Button>
