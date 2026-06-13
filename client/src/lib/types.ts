@@ -64,6 +64,7 @@ export interface ApiError {
 export interface HomeSearchParams {
   search?: string
   category?: string
+  limit?: number
 }
 
 export interface CartProduct {

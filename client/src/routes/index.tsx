@@ -6,7 +6,7 @@ import { FilterSidebar } from "@/components/FilterSidebar"
 import { ProductCard } from "@/components/ProductCard"
 import { getProducts } from "@/lib/api"
 import type { HomeSearchParams, Product } from "@/lib/types"
-import { cn, parseCategoryParam } from "@/lib/utils"
+import { cn, parseCategoryParam, parseLimitParam } from "@/lib/utils"
 
 export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>): HomeSearchParams => ({
@@ -18,12 +18,13 @@ export const Route = createFileRoute("/")({
       typeof search.category === "string" && search.category
         ? search.category
         : undefined,
+    limit: parseLimitParam(search.limit),
   }),
   component: HomePage,
 })
 
 function HomePage() {
-  const { search, category } = Route.useSearch()
+  const { search, category, limit } = Route.useSearch()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -32,7 +33,7 @@ function HomePage() {
     let cancelled = false
     setLoading(true)
 
-    getProducts({ search, category: parseCategoryParam(category) })
+    getProducts({ search, category: parseCategoryParam(category), limit })
       .then((data) => {
         if (!cancelled) setProducts(data)
       })
@@ -46,7 +47,7 @@ function HomePage() {
     return () => {
       cancelled = true
     }
-  }, [search, category])
+  }, [search, category, limit])
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
@@ -72,7 +73,7 @@ function HomePage() {
         <div className="flex-1">
           {loading ? (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, i) => (
+              {Array.from({ length: limit ?? 8 }).map((_, i) => (
                 <div
                   key={i}
                   className="animate-pulse rounded-lg border border-border bg-card"

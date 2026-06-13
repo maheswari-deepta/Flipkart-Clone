@@ -51,6 +51,15 @@ export function serializeCategoryParam(categories: string[]): string | undefined
   return categories.join(",")
 }
 
+export function parseLimitParam(value: unknown): number | undefined {
+  if (value === undefined || value === null || value === "") return undefined
+
+  const parsed = typeof value === "number" ? value : Number(String(value))
+  if (Number.isNaN(parsed)) return undefined
+
+  return Math.min(Math.max(Math.trunc(parsed), 1), 50)
+}
+
 const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
   fashion: Shirt,
   electronics: Laptop,

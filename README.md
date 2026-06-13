@@ -174,7 +174,7 @@ Base URL: `http://localhost:5000` (local)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/products` | List products (`?search=`, `?category=`) |
+| GET | `/api/products` | List products (`?search=`, `?category=`, `?limit=`) |
 | GET | `/api/products/:id` | Product detail |
 | GET | `/api/categories` | List categories |
 | GET | `/api/cart` | Cart summary |

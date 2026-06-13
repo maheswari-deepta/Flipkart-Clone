@@ -14,7 +14,7 @@ import { useCart } from "@/context/CartContext"
 import { useWishlist } from "@/context/WishlistContext"
 import { useDebounce } from "@/hooks/useDebounce"
 import { getCategories, getProducts } from "@/lib/api"
-import type { Category, Product } from "@/lib/types"
+import type { Category, HomeSearchParams, Product } from "@/lib/types"
 import {
   cn,
   getCategoryIcon,
@@ -31,16 +31,17 @@ interface SuggestionItem {
 export function Navbar() {
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const { search: currentSearch, category } = useRouterState({
+  const { search: currentSearch, category, limit } = useRouterState({
     select: (s) => {
       if (s.location.pathname !== "/") {
-        return { search: undefined, category: undefined }
+        return { search: undefined, category: undefined, limit: undefined }
       }
-      const params = s.location.search as {
-        search?: string
-        category?: string
+      const params = s.location.search as HomeSearchParams
+      return {
+        search: params.search,
+        category: params.category,
+        limit: params.limit,
       }
-      return { search: params.search, category: params.category }
     },
   })
   const selectedCategories = parseCategoryParam(category)
@@ -87,10 +88,11 @@ export function Navbar() {
       search: {
         search: debouncedQuery.trim() || undefined,
         category,
+        limit,
       },
       replace: true,
     })
-  }, [debouncedQuery, pathname, category, navigate])
+  }, [debouncedQuery, pathname, category, limit, navigate])
 
   useEffect(() => {
     const trimmed = query.trim()
