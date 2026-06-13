@@ -16,7 +16,9 @@ export function CartItemRow({ item }: CartItemRowProps) {
   const [removing, setRemoving] = useState(false)
   const { product, quantity } = item
   const imageUrl = product.images[0]?.url
+  const minQty = product.minOrderQty ?? 1
   const atMaxStock = quantity >= product.stock
+  const atMinQty = quantity <= minQty
   const lineTotal = product.price * quantity
 
   async function handleRemove() {
@@ -69,6 +71,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
               variant="outline"
               size="icon-sm"
               onClick={() => updateQuantity(item.id, quantity - 1)}
+              disabled={atMinQty}
               aria-label="Decrease quantity"
             >
               <Minus className="size-3.5" />
@@ -90,6 +93,12 @@ export function CartItemRow({ item }: CartItemRowProps) {
           {atMaxStock && (
             <span className="text-xs text-muted-foreground">
               Max stock reached
+            </span>
+          )}
+
+          {minQty > 1 && (
+            <span className="text-xs text-muted-foreground">
+              Min qty: {minQty}
             </span>
           )}
         </div>

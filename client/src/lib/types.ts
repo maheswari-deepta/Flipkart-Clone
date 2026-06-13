@@ -14,6 +14,19 @@ export interface ProductColor {
   token: string
 }
 
+export interface Review {
+  id: number
+  rating: number
+  comment: string
+  reviewerName: string
+  productId: number
+  createdAt: string
+}
+
+export interface ProductReviewCount {
+  reviews: number
+}
+
 export interface Product {
   id: number
   name: string
@@ -23,12 +36,25 @@ export interface Product {
   stock: number
   rating: number
   brand: string | null
+  sku: string
+  weight: number
+  width: number
+  height: number
+  depth: number
+  warranty: string
+  shippingInfo: string
+  availability: string
+  returnPolicy: string
+  minOrderQty: number
+  tags: string[]
   sizes: string[]
   colors: ProductColor[]
   categoryId: number
   createdAt: string
   images: ProductImage[]
   category: Category
+  reviews?: Review[]
+  _count?: ProductReviewCount
 }
 
 export interface ApiError {
@@ -49,6 +75,7 @@ export interface CartProduct {
   stock: number
   rating: number
   brand: string | null
+  minOrderQty: number
   categoryId: number
   createdAt: string
   images: ProductImage[]

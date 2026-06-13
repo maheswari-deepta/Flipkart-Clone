@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import axios from "axios"
 import { useEffect, useMemo, useState } from "react"
-import { Star } from "lucide-react"
+import { Minus, Plus, Star } from "lucide-react"
 
 import { Carousel } from "@/components/Carousel"
+import { ProductReviews } from "@/components/ProductReviews"
+import { ProductSpecifications } from "@/components/ProductSpecifications"
 import { SizeSelectionDialog } from "@/components/SizeSelectionDialog"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/context/CartContext"
@@ -24,6 +26,7 @@ function ProductDetailPage() {
   const [notFound, setNotFound] = useState(false)
   const [selectedSize, setSelectedSize] = useState("")
   const [selectedColor, setSelectedColor] = useState("")
+  const [quantity, setQuantity] = useState(1)
   const [sizeDialogOpen, setSizeDialogOpen] = useState(false)
 
   const id = Number(productId)
@@ -42,7 +45,10 @@ function ProductDetailPage() {
 
     getProductById(id)
       .then((data) => {
-        if (!cancelled) setProduct(data)
+        if (!cancelled) {
+          setProduct(data)
+          setQuantity(data.minOrderQty)
+        }
       })
       .catch((err) => {
         if (!cancelled) {
@@ -67,11 +73,6 @@ function ProductDetailPage() {
     return product.sizes.length > 0 || product.colors.length > 0
   }, [product])
 
-  const isFashionWithVariants = useMemo(() => {
-    if (!product) return false
-    return product.category.name === "Fashion" && hasVariants
-  }, [product, hasVariants])
-
   const variantInCart = useMemo(() => {
     if (!product || !cart) return false
     return cart.items.some(
@@ -81,6 +82,12 @@ function ProductDetailPage() {
         item.color === (selectedColor || "")
     )
   }, [product, cart, selectedSize, selectedColor])
+
+  const reviewCount = product?.reviews?.length ?? 0
+  const minQty = product?.minOrderQty ?? 1
+  const maxQty = product?.stock ?? 1
+  const atMinQty = quantity <= minQty
+  const atMaxQty = quantity >= maxQty
 
   if (loading) {
     return (
@@ -115,14 +122,14 @@ function ProductDetailPage() {
   const inStock = product.stock > 0
 
   function needsVariantSelection(): boolean {
-    if (!isFashionWithVariants) return false
+    if (!hasVariants) return false
     if (product!.sizes.length > 0 && !selectedSize) return true
     if (product!.colors.length > 0 && !selectedColor) return true
     return false
   }
 
   async function performAddToCart() {
-    await addToCart(product!.id, 1, {
+    await addToCart(product!.id, quantity, {
       size: selectedSize,
       color: selectedColor,
     })
@@ -155,7 +162,7 @@ function ProductDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8">
       <div className="grid gap-8 md:grid-cols-2">
         <Carousel images={product.images} productId={product.id} />
 
@@ -168,10 +175,15 @@ function ProductDetailPage() {
             <p className="text-sm text-muted-foreground">{product.brand}</p>
           )}
 
-          <div className="flex items-center gap-2">
+          <p className="text-xs text-muted-foreground">SKU: {product.sku}</p>
+
+          <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-sm bg-primary/10 px-2 py-1 text-sm font-medium text-primary">
               <Star className="size-4 fill-primary" />
               {product.rating.toFixed(1)}
+              <span className="font-normal text-muted-foreground">
+                ({reviewCount} review{reviewCount === 1 ? "" : "s"})
+              </span>
             </span>
             <span
               className={cn(
@@ -181,7 +193,7 @@ function ProductDetailPage() {
                   : "bg-destructive/10 text-destructive"
               )}
             >
-              {inStock ? "In Stock" : "Out of Stock"}
+              {product.availability}
             </span>
           </div>
 
@@ -201,7 +213,20 @@ function ProductDetailPage() {
             )}
           </div>
 
-          {isFashionWithVariants && product.sizes.length > 0 && (
+          {product.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {product.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-sm bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {hasVariants && product.sizes.length > 0 && (
             <div>
               <p className="mb-2 text-sm font-medium text-foreground">Size</p>
               <div className="flex flex-wrap gap-2">
@@ -224,7 +249,7 @@ function ProductDetailPage() {
             </div>
           )}
 
-          {isFashionWithVariants && product.colors.length > 0 && (
+          {hasVariants && product.colors.length > 0 && (
             <div>
               <p className="mb-2 text-sm font-medium text-foreground">Color</p>
               <div className="flex flex-wrap gap-2">
@@ -257,9 +282,39 @@ function ProductDetailPage() {
             </div>
           )}
 
-          <p className="text-sm leading-relaxed text-foreground">
-            {product.description}
-          </p>
+          <div>
+            <p className="mb-2 text-sm font-medium text-foreground">Quantity</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  onClick={() => setQuantity((q) => Math.max(minQty, q - 1))}
+                  disabled={!inStock || atMinQty}
+                  aria-label="Decrease quantity"
+                >
+                  <Minus className="size-3.5" />
+                </Button>
+                <span className="w-10 text-center text-sm font-medium text-foreground">
+                  {quantity}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
+                  disabled={!inStock || atMaxQty}
+                  aria-label="Increase quantity"
+                >
+                  <Plus className="size-3.5" />
+                </Button>
+              </div>
+              {minQty > 1 && (
+                <span className="text-xs text-muted-foreground">
+                  Minimum order: {minQty} units
+                </span>
+              )}
+            </div>
+          </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
             {!variantInCart && (
@@ -283,6 +338,18 @@ function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      <section className="rounded-lg border border-border bg-card p-4">
+        <h2 className="mb-3 text-lg font-semibold text-foreground">
+          Description
+        </h2>
+        <p className="text-sm leading-relaxed text-foreground">
+          {product.description}
+        </p>
+      </section>
+
+      <ProductSpecifications product={product} />
+      <ProductReviews reviews={product.reviews ?? []} />
 
       <SizeSelectionDialog
         open={sizeDialogOpen}

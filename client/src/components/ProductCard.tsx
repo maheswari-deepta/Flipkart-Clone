@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router"
+import { Star } from "lucide-react"
 
 import { WishlistImageButton } from "@/components/WishlistImageButton"
 import type { Product } from "@/lib/types"
-import { calculateDiscount, formatPrice } from "@/lib/utils"
+import { calculateDiscount, cn, formatPrice } from "@/lib/utils"
 
 interface ProductCardProps {
   product: Product
@@ -54,6 +55,26 @@ export function ProductCard({ product }: ProductCardProps) {
           <p className="line-clamp-1 text-xs text-muted-foreground">
             {product.brand}
           </p>
+        )}
+
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Star className="size-3 fill-primary text-primary" />
+          <span>{product.rating.toFixed(1)}</span>
+          <span>
+            ({product._count?.reviews ?? 0} review
+            {(product._count?.reviews ?? 0) === 1 ? "" : "s"})
+          </span>
+        </div>
+
+        {product.availability !== "In Stock" && (
+          <span
+            className={cn(
+              "inline-flex w-fit rounded-sm px-1.5 py-0.5 text-xs font-medium",
+              "bg-destructive/10 text-destructive"
+            )}
+          >
+            {product.availability}
+          </span>
         )}
 
         <div className="mt-auto flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 pt-1">
