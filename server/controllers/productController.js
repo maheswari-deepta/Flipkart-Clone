@@ -1,4 +1,8 @@
 const prisma = require("../prismaClient");
+const {
+  productListInclude,
+  productDetailInclude,
+} = require("../config/productIncludes");
 
 /** Returns products filtered by optional search, category, and limit query params. */
 async function getProducts(req, res, next) {
@@ -12,6 +16,9 @@ async function getProducts(req, res, next) {
         OR: [
           { name: { contains: term, mode: "insensitive" } },
           { category: { name: { contains: term, mode: "insensitive" } } },
+          { brand: { contains: term, mode: "insensitive" } },
+          { sku: { contains: term, mode: "insensitive" } },
+          { tags: { has: term.toLowerCase() } },
         ],
       });
     }
@@ -40,10 +47,7 @@ async function getProducts(req, res, next) {
 
     const products = await prisma.product.findMany({
       where,
-      include: {
-        images: true,
-        category: true,
-      },
+      include: productListInclude,
       orderBy: { id: "asc" },
       ...(take ? { take } : {}),
     });
@@ -54,7 +58,7 @@ async function getProducts(req, res, next) {
   }
 }
 
-/** Returns a single product by id with images and category. */
+/** Returns a single product by id with images, category, and reviews. */
 async function getProductById(req, res, next) {
   try {
     const id = Number(req.params.id);
@@ -65,10 +69,7 @@ async function getProductById(req, res, next) {
 
     const product = await prisma.product.findUnique({
       where: { id },
-      include: {
-        images: true,
-        category: true,
-      },
+      include: productDetailInclude,
     });
 
     if (!product) {

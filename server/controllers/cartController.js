@@ -66,6 +66,11 @@ async function addToCart(req, res, next) {
     });
 
     const newQty = (existing?.quantity ?? 0) + quantity;
+    if (newQty < product.minOrderQty) {
+      return res.status(400).json({
+        error: `Minimum order quantity is ${product.minOrderQty}`,
+      });
+    }
     if (newQty > product.stock) {
       return res.status(400).json({ error: "Insufficient stock" });
     }
@@ -116,6 +121,12 @@ async function updateCartItem(req, res, next) {
 
     if (!cartItem) {
       return res.status(404).json({ error: "Cart item not found" });
+    }
+
+    if (quantity < cartItem.product.minOrderQty) {
+      return res.status(400).json({
+        error: `Minimum order quantity is ${cartItem.product.minOrderQty}`,
+      });
     }
 
     if (quantity > cartItem.product.stock) {
