@@ -4,6 +4,7 @@ import {
   Armchair,
   BookOpen,
   Dumbbell,
+  FlaskRound,
   Home,
   Laptop,
   Microwave,
@@ -72,6 +73,7 @@ const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
   furniture: Armchair,
   toys: ToyBrick,
   sports: Dumbbell,
+  fragrances: FlaskRound,
 }
 
 export function getCategoryIcon(categoryName: string): LucideIcon {
